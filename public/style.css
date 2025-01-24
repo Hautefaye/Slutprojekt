@@ -1,0 +1,38 @@
+@font-face {
+    font-family: jetBrains;
+    src: url(/assets/JetBrainsMono-Regular.ttf) format("TrueType");
+}
+
+
+* {
+    font-family: jetBrains;
+    font-size: 1rem;
+    margin: 0;
+}
+
+#topNav {
+    display: flex;
+    justify-content: space-between;
+    height: 10vh;
+    border-bottom: black 1px solid;
+}
+
+#logo {
+    max-width: 4rem;
+    aspect-ratio: 1/1;
+}
+
+#logoImg {
+    max-width: inherit;
+    aspect-ratio: 1/1;
+    border-radius: 10%;
+}
+
+#leftNav, #rightNav {
+    display: flex;
+    align-items: center;
+}
+
+.headerLi {
+    margin: 1rem;
+}
