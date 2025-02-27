@@ -4,15 +4,18 @@ const session = require('express-session');
 const path = require('path'); //hanterar filvägar
 const crypto = require('node:crypto');
 const multer = require('multer'); //filuppladdning
+const { Server } = require("socket.io");
+const { db, getAll } = require("./db.js");
+const { createServer } = require("http");
+const fs = require("fs").promises;
 const app = express();
 const port = 3000;
-const fs = require("fs").promises;
 
 app.use(express.static("public"));
 app.listen(port, () => console.log(`localhost:${port}`));
 
 app.use(session({
-    secret: 'Kringla',
+    secret: 'KringlaBringlaBimbelbomPrimla',
     resave: false,
     saveUninitialized: true,
     cookie: {secure: false}
@@ -60,6 +63,14 @@ const upload = multer({
     fileFilter: fileFilter 
 });
 
+
+io.on("connection", handleConnection);
+
+function handleConnection(socket) {
+    console.log("socket")
+
+    if (!socket.request.session.loggedIn) return;
+}
 
 
 
