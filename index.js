@@ -5,13 +5,13 @@ const path = require('path'); //hanterar filvägar
 const crypto = require('node:crypto');
 const multer = require('multer'); //filuppladdning
 const { Server } = require("socket.io");
-const { db, getAll } = require("./db.js");
 const { createServer } = require("http");
 const fs = require("fs").promises;
 const app = express();
 const port = 3000;
 
 app.use(express.static("public"));
+app.use(express.static("utils.js"));
 app.listen(port, () => console.log(`localhost:${port}`));
 
 app.use(session({
@@ -34,46 +34,6 @@ app.get('/session', (req, res) => {
 });
 
 
-//Multer-konfiguration
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, path.join(__dirname, 'uploads'));
-    },
-    filename: (req, file, cb) => {
-      const ext = path.extname(file.originalname);
-      const filename = Date.now() + ext; // Genererar unikt namn på filen
-      cb(null, filename);
-    }
-});
-
-
-const fileFilter = (req, file, cb) => {
-    const allowedMimeTypes = ['image/jpg', 'image/png', 'image/gif'];
-  
-    if (allowedMimeTypes.includes(file.mimetype)) {
-        cb(null, true);
-    } else {
-        cb(new Error('Invalid file type. Only images are allowed'), false);
-    }
-};
-
-
-const upload = multer({ 
-    storage: storage,
-    fileFilter: fileFilter 
-});
-
-
-io.on("connection", handleConnection);
-
-function handleConnection(socket) {
-    console.log("socket")
-
-    if (!socket.request.session.loggedIn) return;
-}
-
-
-
 async function homePage(req, res) {
     try {
         let content = "gfsagsagsga";
@@ -82,7 +42,6 @@ async function homePage(req, res) {
         return res.send("error:" + err); // Om något går fel i renderingen
     }
 }
-
 
 async function loginPage(req, res) {
     let form = await fs.readFile(__dirname + "/template/loginForm.html");
@@ -104,15 +63,58 @@ async function registerPage(req, res) {
 
 
 async function login(req, res) {
-    let form = await fs.readFile("template/login.html");
-    form = form.toString();
-    res.send(render(req.session.loggedIn, form));
+    let data = req.body;
+
+    let users = (await fs.readFile("users.json")).toString();
+    users = JSON.parse(users);
+    let userExist = users.find(u=>u.email==data.email);
+    if(!userExist) return res.send("No such user");
+
+    let check = await bcrypt.compare(data.password, userExist.password);
+    if(!check) return res.redirect("/login?wrong_credentials");
+
+    req.session.email = userExist.email;
+    req.session.uuid = userExist.uuid;
+    req.session.role = userExist.role;
+    req.session.loggedIn = true;
+
+    res.redirect("/session");
 }
 
 
 async function register(req, res) {
-    let html = "";
-    return res.send(render(req.session.loggedIn, html));
+    let data = req.body;
+    data.uuid = crypto.randomUUID();
+    data.role = "user";
+    data.pfp = "defaultPfp.png";
+
+    if(!data.email || !data.password || !data.passwordCheck || !data.uuid) {
+        return res.send("Please fill in all fields!");
+    } else if (data.password !== data.passwordCheck) {
+        return res.send("Passwords do not match!");
+    }
+    try {
+        data.password = await bcrypt.hash(data.password,12);
+        delete data.passwordCheck;
+
+        let users = (await fs.readFile("users.json")).toString();
+        usersSave = users;
+        users = JSON.parse(users);
+        let userExist = users.find(u=>u.email == data.email);
+        if(userExist) return res.send(render(req.session.loggedIn, "User exists"));
+        let uuidExist = users.find(u=>u.uuid == data.uuid);
+        if(uuidExist) {
+            users.push(usersSave);
+            register();
+        }
+        users.push(data);
+    
+        await fs.writeFile("users.json", JSON.stringify(users, null, 3));
+        res.redirect("/session");
+    } catch (err) {
+        console.log("Error: ", err);
+        res.send(render(req.session.loggedIn,"Error: " + err));
+    }
 }
 
 
