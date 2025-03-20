@@ -48,3 +48,5 @@ function render(loggedIn, content) {
     }
     return html.replace('{content}', content);
 }
+
+module.exports = {render, upload};

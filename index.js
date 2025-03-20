@@ -10,8 +10,10 @@ const fs = require("fs").promises;
 const app = express();
 const port = 3000;
 
+app.use(express.urlencoded({ extended: true })); // Add this line to parse URL-encoded form data
+
 app.use(express.static("public"));
-const util = require("./utils.js");
+const {render, upload} = require("./utils.js");
 app.listen(port, () => console.log(`localhost:${port}`));
 
 app.use(session({
@@ -76,6 +78,7 @@ async function login(req, res) {
     let check = await bcrypt.compare(data.password, userExist.password);
     if(!check) return res.redirect("/login?wrong_credentials");
 
+    req.session.username = userExist.username;
     req.session.email = userExist.email;
     req.session.uuid = userExist.uuid;
     req.session.role = userExist.role;
