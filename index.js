@@ -11,7 +11,7 @@ const app = express();
 const port = 3000;
 
 app.use(express.static("public"));
-app.use(express.static("utils.js"));
+const util = require("./utils.js");
 app.listen(port, () => console.log(`localhost:${port}`));
 
 app.use(session({
@@ -21,11 +21,14 @@ app.use(session({
     cookie: {secure: false}
 }));
 
+
 app.get("/", homePage);
 app.get("/login", loginPage);
 app.post("/login", login);
 app.get("/register", registerPage);
 app.post("/register", register);
+app.get("/upload", uploadPage);
+app.post("/upload", upload.single('image'), uploadPost);
 
 
 app.get('/session', (req, res) => {
@@ -42,6 +45,7 @@ async function homePage(req, res) {
         return res.send("error:" + err); // Om något går fel i renderingen
     }
 }
+
 
 async function loginPage(req, res) {
     let form = await fs.readFile(__dirname + "/template/loginForm.html");
@@ -61,7 +65,6 @@ async function registerPage(req, res) {
     res.send(render(req.session.loggedIn, form)); 
 }
 
-
 async function login(req, res) {
     let data = req.body;
 
@@ -80,7 +83,6 @@ async function login(req, res) {
 
     res.redirect("/session");
 }
-
 
 async function register(req, res) {
     let data = req.body;
@@ -118,11 +120,53 @@ async function register(req, res) {
 }
 
 
-function render(loggedIn, content) {
-    let html = require("fs").readFileSync("template/render.html").toString();
-    if (loggedIn) {
-        html = html.replace('<a href="/register">Register</a>', '<a href="/register">Log out</a>');
-        html = html.replace('<li class = "headerLi"><a href="/login">Login</a></li>', '');
+async function uploadPage(req, res) { 
+    if (!req.session.loggedIn) {
+        return res.send(render(req.session.loggedIn, "Please log in or register before posting"))
     }
-    return html.replace('{content}', content);
+    let form = await fs.readFile("template/upload.html");
+    form = form.toString();
+    return res.send(render(req.session.loggedIn, form));
+}
+
+async function uploadPost(req, res) {
+    let time = new Date();
+
+    if (!req.file) {
+        console.error("No file uploaded!");
+        return res.send("No file uploaded.");
+    }
+
+    let data = req.body;
+    data.image = req.file.filename;
+    data.poster = req.session.uuid;
+    data.id = crypto.randomUUID();
+    data.date = time.getDate() + "-" + time.getMonth() + "-" + time.getFullYear();
+
+    try {
+        console.log('File uploaded successfully');
+    } catch (err) {
+        console.log("Error uploading file: ", err);
+        return res.send(render(req.session.loggedIn, "Error uploading file: " + err));
+    }
+
+    if(!data.title || !data.description || !data.image) {
+        return res.send("Please fill in all fields!");
+    }
+    try {
+        let posts = (await fs.readFile("posts.json")).toString();
+        posts = JSON.parse(posts);
+
+        let idExist = posts.find(u=>u.id == data.id);
+        if(idExist) {
+            registerPost();
+        }
+        posts.push(data);
+    
+        await fs.writeFile("posts.json", JSON.stringify(posts, null, 3));
+        return res.redirect("/");
+    } catch (err) {
+        console.log("Error: ", err);
+        return res.send(req.session.loggedIn, "Error: " + err);
+    }
 }

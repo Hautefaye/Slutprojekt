@@ -1,3 +1,7 @@
+const path = require('path'); //hanterar filvägar
+const multer = require('multer'); //filuppladdning
+
+
 //Multer-konfiguration
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -28,10 +32,19 @@ const upload = multer({
 });
 
 
-io.on("connection", handleConnection);
+// io.on("connection", handleConnection);
 
-function handleConnection(socket) {
-    console.log("socket")
+//function handleConnection(socket) {
+//    console.log("socket")
+//
+//    if (!socket.request.session.loggedIn) return;
+//}
 
-    if (!socket.request.session.loggedIn) return;
+function render(loggedIn, content) {
+    let html = require("fs").readFileSync("template/render.html").toString();
+    if (loggedIn) {
+        html = html.replace('<a href="/register">Register</a>', '<a href="/register">Log out</a>');
+        html = html.replace('<li class = "headerLi"><a href="/login">Login</a></li>', '');
+    }
+    return html.replace('{content}', content);
 }
