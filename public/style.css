@@ -36,3 +36,27 @@
 .headerLi {
     margin: 1rem;
 }
+
+main {
+    display: flex;
+    margin:auto;
+    height: 100vh;
+}
+
+#pageContent {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    text-align: center;
+}
+
+#sideBar {
+    display: flex;
+    flex-direction: column;
+    width: 15rem;
+    border-right: 1px solid black;
+}
+
+.sBItem {
+    
+}

@@ -12,5 +12,29 @@
       "uuid": "fe5021fa-1327-469c-be50-ec87e7c44e07",
       "role": "user",
       "pfp": "defaultPfp.png"
+   },
+   {
+      "username": "onkeltronkel",
+      "email": "onkeltronkel@gmail.com",
+      "password": "$2a$12$vP6s7dblUwBMWFIi9txJm.E0Yr8vNfFMQ7u5TTG5Y5sA4kRXSo8ra",
+      "uuid": "57356c75-da93-4d5a-a5bf-c771a93463f9",
+      "role": "user",
+      "pfp": "defaultPfp.png"
+   },
+   {
+      "username": "skibidi",
+      "email": "skibidi@gmail.com",
+      "password": "$2a$12$6AR.7/pe.CvSnb2fGEA02ushpALnL/l4UjsHmmAYJGk3M6LOwjqny",
+      "uuid": "c60d1f5c-22f2-48a3-b841-94d967fe3965",
+      "role": "user",
+      "pfp": "defaultPfp.png"
+   },
+   {
+      "username": "albert",
+      "email": "albert@gmail.com",
+      "password": "$2a$12$2rZSDidPAbeogSpaaPRIuOZiQEfnLtK9nDCVu1ZDxM9y68LIIbF2C",
+      "uuid": "6b30ffe4-2200-493e-8811-2d37bc7b76fc",
+      "role": "user",
+      "pfp": "defaultPfp.png"
    }
 ]
