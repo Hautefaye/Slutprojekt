@@ -1,19 +1,13 @@
-console.log("chat.js ran");
-
-
-// Initialize WebSocket connection
-const socket = io(); // This connects to the WebSocket server
+// Initiates server
+const socket = io(); 
 console.log("WebSocket connection initialized");
 
-// Get the chat ID from the hidden input field
 const chatId = document.getElementById("chatId").value;
 console.log(`Chat ID: ${chatId}`);
 
-// Join the chat room
 socket.emit("joinRoom", chatId);
 console.log(`Joining room: ${chatId}`);
 
-// Load existing messages
 socket.on("loadMessages", (messages) => {
     const messagesDiv = document.getElementById("messages");
     messages.forEach(msg => {
@@ -23,7 +17,6 @@ socket.on("loadMessages", (messages) => {
     });
 });
 
-// Listen for incoming messages
 socket.on("message", (msg) => {
     console.log(`Received message: ${msg}`);
     const messagesDiv = document.getElementById("messages");
@@ -32,7 +25,6 @@ socket.on("message", (msg) => {
     messagesDiv.appendChild(messageElement);
 });
 
-// Send a message
 document.getElementById("sendButton").addEventListener("click", () => {
     const messageInput = document.getElementById("messageInput");
     const message = messageInput.value.trim(); // Trim whitespace
@@ -47,17 +39,14 @@ document.getElementById("sendButton").addEventListener("click", () => {
 io.on("connection", (socket) => {
     console.log("A user connected");
 
-    // Handle joining a chat room
     socket.on("joinRoom", (chatId) => {
         socket.join(chatId);
         console.log(`User joined chat room: ${chatId}`);
     });
 
-    // Handle receiving a chat message
     socket.on("chatMessage", async ({ chatId, message }) => {
         console.log(`Message in chat ${chatId}: ${message}`);
 
-        // Save the message to the corresponding chat's JSON file
         try {
             const filePath = `chats/chat_${chatId}.json`;
             let messages = [];
@@ -75,7 +64,6 @@ io.on("connection", (socket) => {
             console.error("Error saving message:", err);
         }
 
-        // Broadcast the message to all clients in the chat room
         io.to(chatId).emit("message", message);
     });
 

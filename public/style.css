@@ -35,6 +35,8 @@
 
 .headerLi {
     margin: 1rem;
+    max-height: fit-content;
+    max-width: fit-content;
 }
 
 main {
@@ -48,6 +50,7 @@ main {
     flex: 1;
     justify-content: center;
     text-align: center;
+    height: min-content;
 }
 
 #sideBar {
@@ -55,8 +58,25 @@ main {
     flex-direction: column;
     width: 15rem;
     border-right: 1px solid black;
+    position: fixed;
+    height: 100%;
+    overflow-x: hidden;
+}
+
+.sBTop {
+    margin-top: 0.5rem;
 }
 
 .sBItem {
-    
+    color: black;
+    white-space: nowrap;
+    position: relative;
+    text-decoration: none;
+    transition: all 0.4s ease;
+    padding: 0.8rem;
+}
+
+.sBItem:hover {
+    background-color: rgb(228, 233, 236);
+    border-radius: 0.5rem;
 }

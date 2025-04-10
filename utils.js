@@ -43,8 +43,8 @@ const upload = multer({
 function render(loggedIn, content) {
     let html = require("fs").readFileSync("template/render.html").toString();
     if (loggedIn) {
-        html = html.replace('<a href="/register">Register</a>', '<a href="/register">Log out</a>');
-        html = html.replace('<li class = "headerLi"><a href="/login">Login</a></li>', '');
+        html = html.replace('<a class="headerLi" href="/register">Register</a>', '<a class="headerLi" href="/register">Log out</a>');
+        html = html.replace('<a class="headerLi" href="/login">Login</a>', '<a class="headerLi" href=""><img src="/assets/defaultPfp.png"></a>');
     }
     return html.replace('{content}', content);
 }
