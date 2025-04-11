@@ -61,11 +61,30 @@ main {
 
 #pageContent {
     display: flex;
+    flex-direction: column;
     flex: 1;
     margin-top: 15vh;
     justify-content: center;
     text-align: center;
     height: min-content;
+}
+
+.post {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid black;
+    border-radius: 5px;
+    margin: auto auto 2rem auto;
+    width: 30rem;
+    overflow: hidden;
+    justify-content: center;
+    text-align: center;
+    height: min-content;
+}
+
+.post * {
+    width: inherit;
+    overflow: hidden;
 }
 
 #sideBar {

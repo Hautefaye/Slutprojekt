@@ -43,6 +43,14 @@ async function postFunc(req, res) {
         const image = req.file ? req.file.filename : null;
 
         if (!title || !description || !image) {
+            if (image) {
+                try {
+                    await fs.unlink(`uploads/${image}`);
+                } catch (err) {
+                    console.error("Error deleting image:", err);
+                }
+            }
+
             return res.send(render(req.session.loggedIn, "All fields are required!"));
         }
 

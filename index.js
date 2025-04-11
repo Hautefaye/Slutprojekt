@@ -17,6 +17,7 @@ const port = 3000;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
+app.use("/uploads", express.static("uploads"));
 
 app.use(session({
     secret: 'KringlaBringlaBimbelbomPrimla',
