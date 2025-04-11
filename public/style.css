@@ -10,11 +10,19 @@
     margin: 0;
 }
 
+header {
+    position: fixed;
+}
+
 #topNav {
     display: flex;
     justify-content: space-between;
+    position: absolute;
     height: 10vh;
+    width: 100vw;
     border-bottom: black 1px solid;
+    z-index: 10;
+    background-color: white;
 }
 
 #logo {
@@ -33,21 +41,28 @@
     align-items: center;
 }
 
+#userProfileBtn #userProfileImg {
+    height: 6vh;
+    aspect-ratio: 1/1;
+    padding: 0;
+    display: block;
+}
+
 .headerLi {
-    margin: 1rem;
+    margin: 1rem 2rem 1rem 1rem;
     max-height: fit-content;
     max-width: fit-content;
 }
 
 main {
     display: flex;
-    margin:auto;
-    height: 100vh;
+    height: 200vh;
 }
 
 #pageContent {
     display: flex;
     flex: 1;
+    margin-top: 15vh;
     justify-content: center;
     text-align: center;
     height: min-content;
@@ -61,6 +76,7 @@ main {
     position: fixed;
     height: 100%;
     overflow-x: hidden;
+    margin-top: 10vh;
 }
 
 .sBTop {
@@ -79,4 +95,47 @@ main {
 .sBItem:hover {
     background-color: rgb(228, 233, 236);
     border-radius: 0.5rem;
+}
+
+
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+    margin-right:2rem;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.dropdown-content {
+    position:absolute;
+    transform: translateX(-100px);
+}
+
+
+body.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+body.dark-mode a {
+    color: #ffffff;
 }

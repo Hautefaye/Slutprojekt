@@ -6,7 +6,8 @@ const fs = require("fs").promises;
 const { chatSearchPage, chatPage, createChat } = require("./modules/chatModule");
 const { loginPage, registerPage, login, register } = require("./modules/userModule");
 const { homePage, topPage, followingPage, profilePage } = require("./modules/generalModule");
-const { render } = require("./utils");
+const { postPage, postFunc } = require("./modules/postModule");
+const { render, upload } = require("./utils");
 
 const app = express();
 const server = createServer(app); // Create the HTTP server
@@ -34,6 +35,10 @@ app.get("/profile/:id", profilePage);
 app.get("/chat", chatSearchPage);
 app.get("/chat/:id", chatPage);
 app.post("/createChat", createChat);
+
+// Post routes
+app.get("/post", postPage);
+app.post("/post", upload.single("image"), postFunc); // Use multer middleware for file uploads
 
 // User routes
 app.get("/login", loginPage);
