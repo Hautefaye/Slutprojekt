@@ -7,7 +7,7 @@ let chatTimers = {};
 
 async function chatSearchPage(req, res) {
     if (!req.session.loggedIn) {
-        return res.send(render(req.session.loggedIn, "Please log in to access chats."));
+        return res.send(render(req.session.loggedIn, req.session.uuid, "Please log in to access chats."));
     }
 
     let chatListHTML = activeChats.map(chat => 
@@ -37,12 +37,12 @@ async function chatSearchPage(req, res) {
         <script src="/socket.io/socket.io.js"></script>
         <script src="/chat.js"></script>
     `;
-    return res.send(render(req.session.loggedIn, content));
+    return res.send(render(req.session.loggedIn, req.session.uuid, content));
 }
 
 async function chatPage(req, res) {
     if (!req.session.loggedIn) {
-        return res.send(render(req.session.loggedIn, "Please log in to access this chat."));
+        return res.send(render(req.session.loggedIn, req.session.uuid, "Please log in to access this chat."));
     }
 
     // Extract the chat ID from the route parameter
@@ -50,7 +50,7 @@ async function chatPage(req, res) {
     let chat = activeChats.find(c => c.id === chatId);
 
     if (!chat) {
-        return res.send(render(req.session.loggedIn, "Chat room not found."));
+        return res.send(render(req.session.loggedIn, req.session.uuid, "Chat room not found."));
     }
 
     // Render the chat room page with proper structure and classes
@@ -67,12 +67,12 @@ async function chatPage(req, res) {
         <script src="/socket.io/socket.io.js"></script>
         <script src="/chat.js"></script>
     `;
-    return res.send(render(req.session.loggedIn, content));
+    return res.send(render(req.session.loggedIn, req.session.uuid, content));
 }
 
 async function createChat(req, res) {
     if (!req.session.loggedIn) {
-        return res.send(render(req.session.loggedIn, "Please log in to create a chat."));
+        return res.send(render(req.session.loggedIn, req.session.uuid, "Please log in to create a chat."));
     }
 
     let chatName = req.body.chatName;

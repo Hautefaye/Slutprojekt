@@ -25,17 +25,17 @@ async function savePosts(posts) {
 // Render the post creation page
 async function postPage(req, res) {
     if (!req.session.loggedIn) {
-        return res.send(render(req.session.loggedIn, "Please log in to create a post."));
+        return res.send(render(req.session.loggedIn, req.session.uuid, "Please log in to create a post."));
     }
 
     const form = await fs.readFile("template/upload.html", "utf-8");
-    return res.send(render(req.session.loggedIn, form));
+    return res.send(render(req.session.loggedIn, req.session.uuid, form));
 }
 
 // Handle post creation
 async function postFunc(req, res) {
     if (!req.session.loggedIn) {
-        return res.send(render(req.session.loggedIn, "Please log in to create a post."));
+        return res.send(render(req.session.loggedIn, req.session.uuid, "Please log in to create a post."));
     }
 
     try {
@@ -51,7 +51,7 @@ async function postFunc(req, res) {
                 }
             }
 
-            return res.send(render(req.session.loggedIn, "All fields are required!"));
+            return res.send(render(req.session.loggedIn, req.session.uuid, "All fields are required!"));
         }
 
         const posts = await loadPosts();
@@ -71,7 +71,7 @@ async function postFunc(req, res) {
         res.redirect("/"); // Redirect to the homepage or another page after posting
     } catch (err) {
         console.error("Error creating post:", err);
-        res.send(render(req.session.loggedIn, "Error creating post."));
+        res.send(render(req.session.loggedIn, req.session.uuid, "Error creating post."));
     }
 }
 

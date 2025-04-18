@@ -47,7 +47,7 @@ const upload = multer({
 //    if (!socket.request.session.loggedIn) return;
 //}
 
-function render(loggedIn, content) {
+function render(loggedIn, uuid, content) {
     let html = require("fs").readFileSync("template/render.html").toString();
     html += `
         <script>
@@ -61,7 +61,7 @@ function render(loggedIn, content) {
                     <img id="userProfileImg" src="/assets/defaultPfp.png">
                 </a>
                 <div class="dropdown-content">
-                    <a href="/profile">View Profile</a>
+                    <a href="/profile/${uuid}">View Profile</a>
                     <a href="#" id="toggleDarkMode">Dark Mode</a>
                 </div>
             </div>`);

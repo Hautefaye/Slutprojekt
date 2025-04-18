@@ -18,7 +18,7 @@ async function homePage(req, res) {
             </div>
         `).join("");
 
-        return res.send(render(req.session.loggedIn, content));
+        return res.send(render(req.session.loggedIn, req.session.uuid, content));
     } catch (err) {
         console.error("Error loading posts:", err);
         return res.send("Error loading posts.");
@@ -28,7 +28,7 @@ async function homePage(req, res) {
 async function topPage(req, res) {
     try {
         let content = "gfsagsagsga";
-        return res.send(render(req.session.loggedIn, content));
+        return res.send(render(req.session.loggedIn, req.session.uuid, content));
     } catch (err) {
         return res.send("error:" + err); // If something goes wrong during rendering
     }
@@ -37,7 +37,7 @@ async function topPage(req, res) {
 async function followingPage(req, res) {
     try {
         let content = "gfsagsagsga";
-        return res.send(render(req.session.loggedIn, content));
+        return res.send(render(req.session.loggedIn, req.session.uuid, content));
     } catch (err) {
         return res.send("error:" + err); // If something goes wrong during rendering
     }
@@ -46,7 +46,7 @@ async function followingPage(req, res) {
 async function profilePage(req, res) {
     try {
         let content = "gfsagsagsga";
-        return res.send(render(req.session.loggedIn, content));
+        return res.send(render(req.session.loggedIn, req.session.uuid, content));
     } catch (err) {
         return res.send("error:" + err); // If something goes wrong during rendering
     }

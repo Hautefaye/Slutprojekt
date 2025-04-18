@@ -6,7 +6,7 @@ const { render } = require("../utils");
 async function loginPage(req, res) {
     let form = await fs.readFile(__dirname + "/../template/loginForm.html");
     form = form.toString();
-    return res.send(render(req.session.loggedIn, form));
+    return res.send(render(req.session.loggedIn, req.session.uuid, form));
 }
 
 async function registerPage(req, res) {
@@ -17,7 +17,7 @@ async function registerPage(req, res) {
 
     let form = await fs.readFile("template/registerForm.html");
     form = form.toString();
-    res.send(render(req.session.loggedIn, form));
+    res.send(render(req.session.loggedIn, req.session.uuid, form));
 }
 
 async function login(req, res) {
@@ -26,7 +26,7 @@ async function login(req, res) {
     let users = (await fs.readFile("users.json")).toString();
     users = JSON.parse(users);
     let userExist = users.find(u => u.email == data.email);
-    if (!userExist) return res.send(render(req.session.loggedIn, "No such user"));
+    if (!userExist) return res.send(render(req.session.loggedIn, req.session.uuid, "No such user"));
 
     let check = await bcrypt.compare(data.password, userExist.password);
     if (!check) return res.redirect("/login?wrong_credentials");
@@ -58,7 +58,7 @@ async function register(req, res) {
         let users = (await fs.readFile("users.json")).toString();
         users = JSON.parse(users);
         let userExist = users.find(u => u.email == data.email);
-        if (userExist) return res.send(render(req.session.loggedIn, "User exists"));
+        if (userExist) return res.send(render(req.session.loggedIn, req.session.uuid, "User exists"));
 
         users.push(data);
 
@@ -66,7 +66,7 @@ async function register(req, res) {
         res.redirect("/session");
     } catch (err) {
         console.log("Error: ", err);
-        res.send(render(req.session.loggedIn, "Error: " + err));
+        res.send(render(req.session.loggedIn, req.session.uuid, "Error: " + err));
     }
 }
 
