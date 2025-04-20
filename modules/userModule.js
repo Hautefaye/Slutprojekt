@@ -71,9 +71,76 @@ async function register(req, res) {
     }
 }
 
+async function editProfilePage(req, res) {
+    try {
+        // Load users from users.json
+        const usersData = JSON.parse(await fs.readFile("users.json"));
+        const user = usersData.find(u => u.uuid == req.session.uuid);
+
+        if (!user) {
+            return res.send(render(req.session.loggedIn, req.session.uuid, "User not found"));
+        }
+
+        // Generate HTML form for editing profile
+        let content = `
+            <div class="editProfileForm">
+                <form action="/editProfile" method="POST" enctype="multipart/form-data">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" value="${user.username}" required />
+                    
+                    <label for="description">Description:</label>
+                    <textarea id="description" name="description" required>${user.description}</textarea>
+                    
+                    <label for="pfp">Profile Picture:</label>
+                    <input type="file" id="pfp" name="pfp" accept="image/*" />
+                    
+                    <button type="submit">Save Changes</button>
+                </form>
+            </div>
+        `;
+
+        return res.send(render(req.session.loggedIn, req.session.uuid, content));
+    } catch (err) {
+        console.error("Error loading edit profile page:", err);
+        return res.send("Error loading edit profile page.");
+    }
+}
+
+async function editProfile(req, res) {
+    try {
+        // Load users from users.json
+        const usersData = JSON.parse(await fs.readFile("users.json"));
+        const userIndex = usersData.findIndex(u => u.uuid == req.session.uuid);
+
+        if (userIndex === -1) {
+            return res.send(render(req.session.loggedIn, req.session.uuid, "User not found"));
+        }
+
+        // Update user data
+        const user = usersData[userIndex];
+        user.username = req.body.username;
+        user.description = req.body.description;
+
+        // Handle profile picture upload if provided
+        if (req.file) {
+            user.pfp = `/uploads/${req.file.filename}`;
+        }
+
+        // Save updated users data
+        await fs.writeFile("users.json", JSON.stringify(usersData, null, 2));
+
+        return res.redirect(`/profile/${req.session.uuid}`);
+    } catch (err) {
+        console.error("Error updating profile:", err);
+        return res.send("Error updating profile.");
+    }
+}
+
 module.exports = {
     loginPage,
     registerPage,
     login,
     register,
+    editProfilePage,
+    editProfile,
 };

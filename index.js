@@ -4,7 +4,7 @@ const { createServer } = require("http");
 const { Server } = require("socket.io");
 const fs = require("fs").promises;
 const { chatSearchPage, chatPage, createChat } = require("./modules/chatModule");
-const { loginPage, registerPage, login, register } = require("./modules/userModule");
+const { loginPage, registerPage, login, register, editProfile, editProfilePage } = require("./modules/userModule");
 const { homePage, topPage, followingPage, profilePage } = require("./modules/generalModule");
 const { postPage, postFunc } = require("./modules/postModule");
 const { render, upload } = require("./utils");
@@ -26,22 +26,24 @@ app.use(session({
     cookie: { secure: false },
 }));
 
-// General routes
+// General
 app.get("/", homePage);
 app.get("/topPage", topPage);
 app.get("/following", followingPage);
 app.get("/profile/:id", profilePage);
+app.get("/editProfile", editProfilePage);
+app.post("/editProfile", upload.single("pfp"), editProfile);
 
-// Chat routes
+// Chat
 app.get("/chat", chatSearchPage);
 app.get("/chat/:id", chatPage);
 app.post("/createChat", createChat);
 
-// Post routes
+// Post
 app.get("/post", postPage);
 app.post("/post", upload.single("image"), postFunc); // Use multer middleware for file uploads
 
-// User routes
+// User
 app.get("/login", loginPage);
 app.post("/login", login);
 app.get("/register", registerPage);

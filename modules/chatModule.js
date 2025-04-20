@@ -4,6 +4,7 @@ const { render } = require("../utils");
 
 let activeChats = [];
 let chatTimers = {};
+const CHAT_TIME_LIMIT = 1000*10; 
 
 async function chatSearchPage(req, res) {
     if (!req.session.loggedIn) {
@@ -83,6 +84,11 @@ async function createChat(req, res) {
     try {
         await fs.writeFile(`chats/chat_${chatId}.json`, JSON.stringify([], null, 3));
         console.log(`Chat created: ${chatName} (ID: ${chatId})`);
+
+        // Set a timer to expire the chat after the time limit
+        chatTimers[chatId] = setTimeout(async () => {
+            await removeChat(chatId);
+        }, CHAT_TIME_LIMIT);
     } catch (err) {
         console.error("Error creating chat file:", err);
         return res.send("Error creating chat.");
@@ -91,10 +97,31 @@ async function createChat(req, res) {
     res.redirect("/chat");
 }
 
+async function removeChat(chatId) {
+    // Find and remove the chat from activeChats
+    let chatIndex = activeChats.findIndex(chat => chat.id === chatId);
+    if (chatIndex !== -1) {
+        let chat = activeChats[chatIndex];
+        activeChats.splice(chatIndex, 1);
+
+        // Clear the timer for this chat
+        if (chatTimers[chatId]) {
+            clearTimeout(chatTimers[chatId]);
+            delete chatTimers[chatId];
+        }
+
+        // Delete the chat's JSON file
+        try {
+            await fs.unlink(`chats/chat_${chatId}.json`);
+            console.log(`Chat removed: ${chat.name} (ID: ${chatId})`);
+        } catch (err) {
+            console.error("Error deleting chat file:", err);
+        }
+    }
+}
+
 module.exports = {
     chatSearchPage,
     chatPage,
     createChat,
-    activeChats,
-    chatTimers,
 };

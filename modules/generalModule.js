@@ -4,20 +4,21 @@ const fs = require("fs").promises;
 
 async function homePage(req, res) {
     try {
-        // Load posts from posts.json
-        const data = await fs.readFile("posts.json", "utf-8");
-        const posts = JSON.parse(data);
+        const posts = JSON.parse(await fs.readFile("posts.json", "utf-8"));
+        const users = JSON.parse(await fs.readFile("users.json", "utf-8"));
 
-        // Generate HTML content for posts
-        let content = posts.map(post => `
+        let content = posts.map(post => {
+            const poster = users.find(u => u.uuid == post.poster);
+
+            return `
             <div class="post">
                 <h2>${post.title}</h2>
                 <p>${post.description}</p>
                 <img src="/uploads/${post.image}" alt="${post.title}" />
-                <p>Posted by: ${post.poster}</p>
+                <p>Posted by: ${poster.username}</p>
                 <p>Date: ${post.date}</p>
             </div>
-        `).join("");
+        `}).join("");
 
         return res.send(render(req.session.loggedIn, req.session.uuid, content));
     } catch (err) {
