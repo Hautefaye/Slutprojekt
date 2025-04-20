@@ -4,14 +4,14 @@
       "password": "$2a$12$IrMg9Ddkv7xmOnHBmmhBX.MU.sK8/dnB.IFuaPq4KOm9MKv.kw9ua",
       "uuid": "f178cac0-61bc-46a6-9672-26bc169130b6",
       "role": "user",
-      "pfp": "defaultPfp.png"
+      "pfp": "/assets/defaultPfp.png"
    },
    {
       "email": "a@m.l",
       "password": "$2a$12$ZcTkY9YL4kKr68JB6EbSF.0RGxRv2W1KZTDke.Q5pmWZiPhI9Nwki",
       "uuid": "fe5021fa-1327-469c-be50-ec87e7c44e07",
       "role": "user",
-      "pfp": "defaultPfp.png"
+      "pfp": "/assets/defaultPfp.png"
    },
    {
       "username": "onkeltronkel",
@@ -19,7 +19,7 @@
       "password": "$2a$12$vP6s7dblUwBMWFIi9txJm.E0Yr8vNfFMQ7u5TTG5Y5sA4kRXSo8ra",
       "uuid": "57356c75-da93-4d5a-a5bf-c771a93463f9",
       "role": "user",
-      "pfp": "defaultPfp.png"
+      "pfp": "/assets/defaultPfp.png"
    },
    {
       "username": "skibidi",
@@ -27,7 +27,7 @@
       "password": "$2a$12$6AR.7/pe.CvSnb2fGEA02ushpALnL/l4UjsHmmAYJGk3M6LOwjqny",
       "uuid": "c60d1f5c-22f2-48a3-b841-94d967fe3965",
       "role": "user",
-      "pfp": "defaultPfp.png"
+      "pfp": "/assets/defaultPfp.png"
    },
    {
       "username": "albert",
@@ -35,6 +35,6 @@
       "password": "$2a$12$2rZSDidPAbeogSpaaPRIuOZiQEfnLtK9nDCVu1ZDxM9y68LIIbF2C",
       "uuid": "6b30ffe4-2200-493e-8811-2d37bc7b76fc",
       "role": "user",
-      "pfp": "defaultPfp.png"
+      "pfp": "/assets/defaultPfp.png"
    }
 ]

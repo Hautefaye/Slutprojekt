@@ -44,7 +44,8 @@ async function register(req, res) {
     let data = req.body;
     data.uuid = crypto.randomUUID();
     data.role = "user";
-    data.pfp = "defaultPfp.png";
+    data.pfp = "/assets/defaultPfp.png";
+    data.description = "";
 
     if (!data.email || !data.password || !data.passwordCheck || !data.uuid) {
         return res.send("Please fill in all fields!");
