@@ -29,25 +29,24 @@ async function homePage(req, res) {
 
 async function topPage(req, res) {
     try {
-        let content = "gfsagsagsga";
+        let content = "Top";
         return res.send(render(req.session.loggedIn, req.session.uuid, content));
     } catch (err) {
-        return res.send("error:" + err); // If something goes wrong during rendering
+        return res.send("error:" + err); 
     }
 }
 
 async function followingPage(req, res) {
     try {
-        let content = "gfsagsagsga";
+        let content = "Following";
         return res.send(render(req.session.loggedIn, req.session.uuid, content));
     } catch (err) {
-        return res.send("error:" + err); // If something goes wrong during rendering
+        return res.send("error:" + err); 
     }
 }
 
 async function profilePage(req, res) {
     try {
-        // Load posts from posts.json
         const data = JSON.parse(await fs.readFile("users.json"));
         const user = data.find(u => u.uuid == req.params.id);
 
@@ -74,7 +73,6 @@ async function profilePage(req, res) {
         `;
         }
 
-        // Generate HTML content for posts
         let content = `
             <div class="pfpDiv">
                 <img src="${user.pfp}" alt="Profile Picture"/>
@@ -102,7 +100,6 @@ async function deleteProfile(req, res) {
             return res.send(render(req.session.loggedIn, req.session.uuid, "UUID is required"));
         }
 
-        // Ensure the logged-in user is deleting their own profile
         if (req.session.uuid !== uuid) {
             return res.send(render(req.session.loggedIn, req.session.uuid, "Unauthorized action"));
         }
@@ -110,10 +107,8 @@ async function deleteProfile(req, res) {
         const users = JSON.parse(await fs.readFile("users.json", "utf8"));
         const updatedUsers = users.filter(user => user.uuid !== uuid);
 
-        // Save the updated users array back to users.json
         await fs.writeFile("users.json", JSON.stringify(updatedUsers, null, 3), "utf8");
 
-        // Log the user out after deleting their profile
         req.session.destroy(err => {
             if (err) {
                 console.error("Error logging out after profile deletion:", err);

@@ -2,7 +2,7 @@ const fs = require("fs").promises;
 const crypto = require("crypto");
 const { render, upload } = require("../utils");
 
-// Load existing posts from posts.json
+
 async function loadPosts() {
     try {
         const data = await fs.readFile("posts.json", "utf-8");
@@ -13,7 +13,6 @@ async function loadPosts() {
     }
 }
 
-// Save posts to posts.json
 async function savePosts(posts) {
     try {
         await fs.writeFile("posts.json", JSON.stringify(posts, null, 3));
@@ -22,7 +21,6 @@ async function savePosts(posts) {
     }
 }
 
-// Render the post creation page
 async function postPage(req, res) {
     if (!req.session.loggedIn) {
         return res.send(render(req.session.loggedIn, req.session.uuid, "Please log in to create a post."));
@@ -32,7 +30,6 @@ async function postPage(req, res) {
     return res.send(render(req.session.loggedIn, req.session.uuid, form));
 }
 
-// Handle post creation
 async function postFunc(req, res) {
     if (!req.session.loggedIn) {
         return res.send(render(req.session.loggedIn, req.session.uuid, "Please log in to create a post."));
@@ -68,7 +65,7 @@ async function postFunc(req, res) {
         posts.push(newPost);
         await savePosts(posts);
 
-        res.redirect("/"); // Redirect to the homepage or another page after posting
+        res.redirect("/"); 
     } catch (err) {
         console.error("Error creating post:", err);
         res.send(render(req.session.loggedIn, req.session.uuid, "Error creating post."));

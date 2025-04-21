@@ -12,8 +12,8 @@ const { render, upload } = require("./utils");
 const sharedSession = require("express-socket.io-session");
 
 const app = express();
-const server = createServer(app); // Create the HTTP server
-const io = new Server(server); // Attach socket.io to the server
+const server = createServer(app);
+const io = new Server(server);
 
 const port = 3000;
 
@@ -51,7 +51,7 @@ app.post("/addMessage", addMessageToChat);
 
 // Post
 app.get("/post", postPage);
-app.post("/post", upload.single("image"), postFunc); // Use multer middleware for file uploads
+app.post("/post", upload.single("image"), postFunc); 
 
 // User
 app.get("/login", loginPage);
@@ -66,22 +66,17 @@ app.get("/session", (req, res) => {
     res.redirect("/login");
 });
 
-// WebSocket logic
-io.on("connection", (socket) => {
-    console.log("A user connected");
 
+
+io.on("connection", (socket) => {
     socket.on("joinRoom", (chatId) => {
         socket.join(chatId);
-        console.log(`User joined chat room: ${chatId}`);
     });
 
     socket.on("chatMessage", async ({ chatId, message }) => {
-        console.log(`Message in chat ${chatId}: ${message}`);
 
-        // Retrieve the username from the session
         const username = socket.handshake.session.username || "Anonymous";
 
-        // Save the message to the chat file
         const chatFilePath = path.join(__dirname, `chats/chat_${chatId}.json`);
         let messages = [];
         try {
@@ -102,12 +97,7 @@ io.on("connection", (socket) => {
             console.error("Error saving chat file:", err);
         }
 
-        // Broadcast the message to all clients in the room
         io.to(chatId).emit("message", newMessage);
-    });
-
-    socket.on("disconnect", () => {
-        console.log("A user disconnected");
     });
 });
 

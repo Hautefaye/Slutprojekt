@@ -73,7 +73,6 @@ async function register(req, res) {
 
 async function editProfilePage(req, res) {
     try {
-        // Load users from users.json
         const usersData = JSON.parse(await fs.readFile("users.json"));
         const user = usersData.find(u => u.uuid == req.session.uuid);
 
@@ -81,7 +80,6 @@ async function editProfilePage(req, res) {
             return res.send(render(req.session.loggedIn, req.session.uuid, "User not found"));
         }
 
-        // Generate HTML form for editing profile
         let content = `
             <div class="editProfileForm">
                 <form action="/editProfile" method="POST" enctype="multipart/form-data">
@@ -108,7 +106,6 @@ async function editProfilePage(req, res) {
 
 async function editProfile(req, res) {
     try {
-        // Load users from users.json
         const usersData = JSON.parse(await fs.readFile("users.json"));
         const userIndex = usersData.findIndex(u => u.uuid == req.session.uuid);
 
@@ -116,17 +113,14 @@ async function editProfile(req, res) {
             return res.send(render(req.session.loggedIn, req.session.uuid, "User not found"));
         }
 
-        // Update user data
         const user = usersData[userIndex];
         user.username = req.body.username;
         user.description = req.body.description;
 
-        // Handle profile picture upload if provided
         if (req.file) {
             user.pfp = `/uploads/${req.file.filename}`;
         }
-
-        // Save updated users data
+        
         await fs.writeFile("users.json", JSON.stringify(usersData, null, 2));
 
         return res.redirect(`/profile/${req.session.uuid}`);

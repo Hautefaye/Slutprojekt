@@ -5,21 +5,19 @@ const { render } = require("../utils");
 
 let activeChats = [];
 let chatTimers = {};
-const ChatTimeLimit = 1000 * 60 * 10; // 10 minutes
+const ChatTimeLimit = 1000 * 60 * 10;
 const ChatsDir = path.join(__dirname, "../chats");
 
-// Cleanup function to remove all chat JSON files on server startup
 async function cleanupChats() {
     try {
         const files = await fs.readdir(ChatsDir);
         for (const file of files) {
             if (file.startsWith("chat_") && file.endsWith(".json")) {
                 await fs.unlink(path.join(ChatsDir, file));
-                console.log(`Deleted chat file: ${file}`);
             }
         }
-        activeChats = []; // Clear activeChats array
-        chatTimers = {}; // Clear chatTimers object
+        activeChats = [];
+        chatTimers = {};
     } catch (err) {
         console.error("Error during chat cleanup:", err);
     }
@@ -67,7 +65,6 @@ async function chatPage(req, res) {
         return res.send(render(req.session.loggedIn, req.session.uuid, "Please log in to access this chat."));
     }
 
-    // Extract the chat ID from the route parameter
     let chatId = req.params.id;
     let chat = activeChats.find(c => c.id === chatId);
 
@@ -75,7 +72,6 @@ async function chatPage(req, res) {
         return res.send(render(req.session.loggedIn, req.session.uuid, "Chat room not found."));
     }
 
-    // Load existing messages from the chat file
     let messages = [];
     try {
         const chatFilePath = path.join(ChatsDir, `chat_${chatId}.json`);
@@ -87,7 +83,6 @@ async function chatPage(req, res) {
         }
     }
 
-    // Render the chat room page with messages
     let content = `
         <div class="chat-room">
             <h1 class="chat-title">Chat Room: ${chat.name}</h1>
@@ -118,9 +113,7 @@ async function createChat(req, res) {
 
     try {
         await fs.writeFile(path.join(ChatsDir, `chat_${chatId}.json`), JSON.stringify([], null, 3));
-        console.log(`Chat created: ${chatName} (ID: ${chatId})`);
 
-        // Set a timer to expire the chat after the time limit
         chatTimers[chatId] = setTimeout(async () => {
             await removeChat(chatId);
         }, ChatTimeLimit);
@@ -145,7 +138,6 @@ async function removeChat(chatId) {
 
         try {
             await fs.unlink(path.join(ChatsDir, `chat_${chatId}.json`));
-            console.log(`Chat removed: ${chat.name} (ID: ${chatId})`);
         } catch (err) {
             console.error("Error deleting chat file:", err);
         }
@@ -153,8 +145,6 @@ async function removeChat(chatId) {
 }
 
 async function addMessageToChat(req, res) {
-    console.log("addMessageToChat called with:", req.body);
-
     if (!req.session.loggedIn) {
         return res.status(401).send("Unauthorized");
     }
@@ -162,13 +152,9 @@ async function addMessageToChat(req, res) {
     const chatId = req.body.chatId;
     const messageText = req.body.message;
 
-    console.log("message: " + messageText)
-
-    // Find the username using the uuid from the session
     let username;
     try {
         const usersFilePath = path.join(__dirname, "../users.json");
-        console.log("Reading users file:", usersFilePath);
 
         const usersData = await fs.readFile(usersFilePath, "utf-8");
         const users = JSON.parse(usersData);
@@ -180,18 +166,14 @@ async function addMessageToChat(req, res) {
         }
 
         username = user.username;
-        console.log("Username found:", username);
     } catch (err) {
         console.error("Error reading users file:", err);
         return res.status(500).send("Internal server error");
     }
 
-    // Append the message to the chat's JSON file
     try {
         const chatFilePath = path.join(ChatsDir, `chat_${chatId}.json`);
-        console.log("Reading chat file:", chatFilePath);
 
-        // Check if the file exists
         let messages = [];
         try {
             const chatData = await fs.readFile(chatFilePath, "utf-8");
@@ -205,13 +187,9 @@ async function addMessageToChat(req, res) {
             }
         }
 
-        // Add the new message
         messages.push({ user: username, text: messageText });
-        console.log("Updated messages:", messages);
 
-        // Save the updated messages back to the file
         await fs.writeFile(chatFilePath, JSON.stringify(messages, null, 3));
-        console.log("Message saved to file:", chatFilePath);
 
         res.status(200).send("Message added");
     } catch (err) {

@@ -1,22 +1,17 @@
-const path = require('path'); //hanterar filvägar
-const multer = require('multer'); //filuppladdning
+const path = require('path');
+const multer = require('multer');
 
 
-//Multer-konfiguration
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, path.join(__dirname, 'uploads'));
     },
     filename: (req, file, cb) => {
         let ext = path.extname(file.originalname);
-        console.log(file.originalname); // Debug log
         if (!ext) {
-            // Default to .jpg if no extension is provided
             ext = '.jpg';
         }
-        console.log(ext); // Debug log
-        const filename = Date.now() + ext; // Genererar unikt namn på filen
-        console.log("Generated filename:", filename); // Debug log
+        const filename = Date.now() + ext; 
         cb(null, filename);
     }
 });
@@ -38,14 +33,6 @@ const upload = multer({
     fileFilter: fileFilter 
 });
 
-
-// io.on("connection", handleConnection);
-
-//function handleConnection(socket) {
-//    console.log("socket")
-//
-//    if (!socket.request.session.loggedIn) return;
-//}
 
 function render(loggedIn, uuid, content) {
     let html = require("fs").readFileSync("template/render.html").toString();
@@ -76,20 +63,17 @@ function setupClientSideScripts() {
         const dropdownContent = document.querySelector('.dropdown-content');
         const toggleDarkMode = document.getElementById('toggleDarkMode');
 
-        // Toggle dropdown visibility on button click
         userProfileBtn.addEventListener('click', (e) => {
             e.preventDefault();
             dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
         });
 
-        // Close dropdown if clicked outside
         document.addEventListener('click', (e) => {
             if (!userProfileBtn.contains(e.target) && !dropdownContent.contains(e.target)) {
                 dropdownContent.style.display = 'none';
             }
         });
 
-        // Toggle dark mode
         toggleDarkMode.addEventListener('click', (e) => {
             e.preventDefault();
             document.body.classList.toggle('dark-mode');
@@ -97,7 +81,6 @@ function setupClientSideScripts() {
             localStorage.setItem('darkMode', isDarkMode ? 'enabled' : 'disabled');
         });
 
-        // Apply dark mode if previously enabled
         if (localStorage.getItem('darkMode') === 'enabled') {
             document.body.classList.add('dark-mode');
         }
