@@ -1,10 +1,31 @@
 const fs = require("fs").promises;
 const crypto = require("node:crypto");
+const path = require("path");
 const { render } = require("../utils");
 
 let activeChats = [];
 let chatTimers = {};
-const CHAT_TIME_LIMIT = 1000*10; 
+const ChatTimeLimit = 1000 * 60 * 10; // 10 minutes
+const ChatsDir = path.join(__dirname, "../chats");
+
+// Cleanup function to remove all chat JSON files on server startup
+async function cleanupChats() {
+    try {
+        const files = await fs.readdir(ChatsDir);
+        for (const file of files) {
+            if (file.startsWith("chat_") && file.endsWith(".json")) {
+                await fs.unlink(path.join(ChatsDir, file));
+                console.log(`Deleted chat file: ${file}`);
+            }
+        }
+        activeChats = []; // Clear activeChats array
+        chatTimers = {}; // Clear chatTimers object
+    } catch (err) {
+        console.error("Error during chat cleanup:", err);
+    }
+}
+
+cleanupChats();
 
 async function chatSearchPage(req, res) {
     if (!req.session.loggedIn) {
@@ -63,7 +84,7 @@ async function chatPage(req, res) {
                 <input id="messageInput" class="message-input" placeholder="Type a message..." />
                 <button id="sendButton" class="send-button">Send</button>
             </div>
-            <input type="hidden" id="chatId" value="${chatId}" />
+            <input type="hidden" id="chatId" value="${chatId}"/>
         </div>
         <script src="/socket.io/socket.io.js"></script>
         <script src="/chat.js"></script>
@@ -82,13 +103,13 @@ async function createChat(req, res) {
     activeChats.push({ id: chatId, name: chatName });
 
     try {
-        await fs.writeFile(`chats/chat_${chatId}.json`, JSON.stringify([], null, 3));
+        await fs.writeFile(path.join(ChatsDir, `chat_${chatId}.json`), JSON.stringify([], null, 3));
         console.log(`Chat created: ${chatName} (ID: ${chatId})`);
 
         // Set a timer to expire the chat after the time limit
         chatTimers[chatId] = setTimeout(async () => {
             await removeChat(chatId);
-        }, CHAT_TIME_LIMIT);
+        }, ChatTimeLimit);
     } catch (err) {
         console.error("Error creating chat file:", err);
         return res.send("Error creating chat.");
@@ -98,21 +119,18 @@ async function createChat(req, res) {
 }
 
 async function removeChat(chatId) {
-    // Find and remove the chat from activeChats
     let chatIndex = activeChats.findIndex(chat => chat.id === chatId);
     if (chatIndex !== -1) {
         let chat = activeChats[chatIndex];
         activeChats.splice(chatIndex, 1);
 
-        // Clear the timer for this chat
         if (chatTimers[chatId]) {
             clearTimeout(chatTimers[chatId]);
             delete chatTimers[chatId];
         }
 
-        // Delete the chat's JSON file
         try {
-            await fs.unlink(`chats/chat_${chatId}.json`);
+            await fs.unlink(path.join(ChatsDir, `chat_${chatId}.json`));
             console.log(`Chat removed: ${chat.name} (ID: ${chatId})`);
         } catch (err) {
             console.error("Error deleting chat file:", err);
@@ -120,8 +138,75 @@ async function removeChat(chatId) {
     }
 }
 
+async function addMessageToChat(req, res) {
+    console.log("addMessageToChat called with:", req.body);
+
+    if (!req.session.loggedIn) {
+        return res.status(401).send("Unauthorized");
+    }
+
+    const chatId = req.body.chatId;
+    const messageText = req.body.message;
+
+    // Find the username using the uuid from the session
+    let username;
+    try {
+        const usersFilePath = path.join(__dirname, "../users.json");
+        console.log("Reading users file:", usersFilePath);
+
+        const usersData = await fs.readFile(usersFilePath, "utf-8");
+        const users = JSON.parse(usersData);
+        const user = users.find(u => u.uuid === req.session.uuid);
+
+        if (!user) {
+            console.error("User not found for UUID:", req.session.uuid);
+            return res.status(404).send("User not found");
+        }
+
+        username = user.username;
+        console.log("Username found:", username);
+    } catch (err) {
+        console.error("Error reading users file:", err);
+        return res.status(500).send("Internal server error");
+    }
+
+    // Append the message to the chat's JSON file
+    try {
+        const chatFilePath = path.join(ChatsDir, `chat_${chatId}.json`);
+        console.log("Reading chat file:", chatFilePath);
+
+        // Check if the file exists
+        let messages = [];
+        try {
+            const chatData = await fs.readFile(chatFilePath, "utf-8");
+            messages = JSON.parse(chatData);
+        } catch (err) {
+            if (err.code === "ENOENT") {
+                console.log("Chat file not found, creating a new one:", chatFilePath);
+            } else {
+                console.error("Error reading chat file:", err);
+                return res.status(500).send("Internal server error");
+            }
+        }
+
+        // Add the new message
+        messages.push({ user: username, text: messageText });
+        console.log("Updated messages:", messages);
+
+        // Save the updated messages back to the file
+        await fs.writeFile(chatFilePath, JSON.stringify(messages, null, 3));
+        console.log("Message saved to file:", chatFilePath);
+
+        res.status(200).send("Message added");
+    } catch (err) {
+        console.error("Error updating chat file:", err);
+        res.status(500).send("Internal server error");
+    }
+}
+
 module.exports = {
     chatSearchPage,
     chatPage,
     createChat,
+    addMessageToChat,
 };

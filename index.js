@@ -3,7 +3,7 @@ const session = require("express-session");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const fs = require("fs").promises;
-const { chatSearchPage, chatPage, createChat } = require("./modules/chatModule");
+const { chatSearchPage, chatPage, createChat, addMessageToChat } = require("./modules/chatModule");
 const { loginPage, registerPage, login, register, editProfile, editProfilePage } = require("./modules/userModule");
 const { homePage, topPage, followingPage, profilePage } = require("./modules/generalModule");
 const { postPage, postFunc } = require("./modules/postModule");
@@ -38,6 +38,7 @@ app.post("/editProfile", upload.single("pfp"), editProfile);
 app.get("/chat", chatSearchPage);
 app.get("/chat/:id", chatPage);
 app.post("/createChat", createChat);
+app.post("/addMessage", addMessageToChat);
 
 // Post
 app.get("/post", postPage);
