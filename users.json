@@ -5,7 +5,8 @@
       "password": "$2a$12$vP6s7dblUwBMWFIi9txJm.E0Yr8vNfFMQ7u5TTG5Y5sA4kRXSo8ra",
       "uuid": "57356c75-da93-4d5a-a5bf-c771a93463f9",
       "role": "user",
-      "pfp": "/assets/defaultPfp.png"
+      "pfp": "/uploads/1745261515848.gif",
+      "description": "blablabla\r\n"
    },
    {
       "username": "skibidi",
@@ -22,5 +23,14 @@
       "uuid": "6b30ffe4-2200-493e-8811-2d37bc7b76fc",
       "role": "user",
       "pfp": "/assets/defaultPfp.png"
+   },
+   {
+      "username": "fsafasfas",
+      "email": "blanmblan@gmail.com",
+      "password": "$2a$12$pIwZ6f5E6.n1v5nmhM2vUe.fL5AA4RoL0m0aAdqpIyFLCw2eaQVYa",
+      "uuid": "579b0dc3-1487-415d-823e-c12fbbd50b6d",
+      "role": "user",
+      "pfp": "/assets/defaultPfp.png",
+      "description": "fasfas"
    }
 ]

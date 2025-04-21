@@ -3,11 +3,13 @@ const session = require("express-session");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const fs = require("fs").promises;
+const path = require("path");
 const { chatSearchPage, chatPage, createChat, addMessageToChat } = require("./modules/chatModule");
 const { loginPage, registerPage, login, register, editProfile, editProfilePage } = require("./modules/userModule");
-const { homePage, topPage, followingPage, profilePage } = require("./modules/generalModule");
+const { homePage, topPage, followingPage, profilePage, deleteProfile } = require("./modules/generalModule");
 const { postPage, postFunc } = require("./modules/postModule");
 const { render, upload } = require("./utils");
+const sharedSession = require("express-socket.io-session");
 
 const app = express();
 const server = createServer(app); // Create the HTTP server
@@ -15,15 +17,21 @@ const io = new Server(server); // Attach socket.io to the server
 
 const port = 3000;
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static("public"));
-app.use("/uploads", express.static("uploads"));
-
-app.use(session({
+const sessionMiddleware = session({
     secret: 'KringlaBringlaBimbelbomPrimla',
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false },
+});
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static("public"));
+app.use("/uploads", express.static("uploads"));
+
+app.use(sessionMiddleware);
+io.use(sharedSession(sessionMiddleware, {
+    autoSave: true,
 }));
 
 // General
@@ -33,6 +41,7 @@ app.get("/following", followingPage);
 app.get("/profile/:id", profilePage);
 app.get("/editProfile", editProfilePage);
 app.post("/editProfile", upload.single("pfp"), editProfile);
+app.post("/deleteProfile", deleteProfile);
 
 // Chat
 app.get("/chat", chatSearchPage);
@@ -68,7 +77,33 @@ io.on("connection", (socket) => {
 
     socket.on("chatMessage", async ({ chatId, message }) => {
         console.log(`Message in chat ${chatId}: ${message}`);
-        io.to(chatId).emit("message", message);
+
+        // Retrieve the username from the session
+        const username = socket.handshake.session.username || "Anonymous";
+
+        // Save the message to the chat file
+        const chatFilePath = path.join(__dirname, `chats/chat_${chatId}.json`);
+        let messages = [];
+        try {
+            const chatData = await fs.readFile(chatFilePath, "utf-8");
+            messages = JSON.parse(chatData);
+        } catch (err) {
+            if (err.code !== "ENOENT") {
+                console.error("Error reading chat file:", err);
+            }
+        }
+
+        const newMessage = { user: username, text: message };
+        messages.push(newMessage);
+
+        try {
+            await fs.writeFile(chatFilePath, JSON.stringify(messages, null, 3));
+        } catch (err) {
+            console.error("Error saving chat file:", err);
+        }
+
+        // Broadcast the message to all clients in the room
+        io.to(chatId).emit("message", newMessage);
     });
 
     socket.on("disconnect", () => {

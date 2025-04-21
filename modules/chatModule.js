@@ -75,11 +75,25 @@ async function chatPage(req, res) {
         return res.send(render(req.session.loggedIn, req.session.uuid, "Chat room not found."));
     }
 
-    // Render the chat room page with proper structure and classes
+    // Load existing messages from the chat file
+    let messages = [];
+    try {
+        const chatFilePath = path.join(ChatsDir, `chat_${chatId}.json`);
+        const chatData = await fs.readFile(chatFilePath, "utf-8");
+        messages = JSON.parse(chatData);
+    } catch (err) {
+        if (err.code !== "ENOENT") {
+            console.error("Error reading chat file:", err);
+        }
+    }
+
+    // Render the chat room page with messages
     let content = `
         <div class="chat-room">
             <h1 class="chat-title">Chat Room: ${chat.name}</h1>
-            <div id="messages" class="chat-messages"></div>
+            <div id="messages" class="chat-messages">
+                ${messages.map(msg => `<div><strong>${msg.user}:</strong> ${msg.text}</div>`).join("")}
+            </div>
             <div class="chat-input">
                 <input id="messageInput" class="message-input" placeholder="Type a message..." />
                 <button id="sendButton" class="send-button">Send</button>
@@ -147,6 +161,8 @@ async function addMessageToChat(req, res) {
 
     const chatId = req.body.chatId;
     const messageText = req.body.message;
+
+    console.log("message: " + messageText)
 
     // Find the username using the uuid from the session
     let username;

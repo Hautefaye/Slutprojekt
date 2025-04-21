@@ -5,33 +5,30 @@ console.log("WebSocket connection initialized");
 const chatId = document.getElementById("chatId").value;
 console.log(`Chat ID: ${chatId}`);
 
+// Join the chat room
 socket.emit("joinRoom", chatId);
 console.log(`Joining room: ${chatId}`);
 
-socket.on("loadMessages", (messages) => {
-    const messagesDiv = document.getElementById("messages");
-    messages.forEach(msg => {
-        const messageElement = document.createElement("div");
-        messageElement.textContent = msg;
-        messagesDiv.appendChild(messageElement);
-    });
-});
-
+// Listen for new messages from the server
 socket.on("message", (msg) => {
     console.log(`Received message: ${msg}`);
     const messagesDiv = document.getElementById("messages");
     const messageElement = document.createElement("div");
-    messageElement.textContent = msg;
+    messageElement.innerHTML = `<strong>${msg.user}:</strong> ${msg.text}`;
     messagesDiv.appendChild(messageElement);
 });
 
-document.getElementById("sendButton").addEventListener("click", () => {
+// Send a new message
+document.getElementById("sendButton").addEventListener("click", async () => {
     const messageInput = document.getElementById("messageInput");
-    const message = messageInput.value.trim(); // Trim whitespace
+    const message = messageInput.value.trim();
+
     if (message) {
         console.log(`Sending message: ${message}`);
-        socket.emit("chatMessage", { chatId, message }); // Emit the message
-        messageInput.value = ""; // Clear the input bar
+
+        // Emit the message to the server
+        socket.emit("chatMessage", { chatId, message });
+        messageInput.value = ""; // Clear the input field
     }
 });
 
