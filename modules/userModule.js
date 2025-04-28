@@ -2,6 +2,7 @@ const fs = require("fs").promises;
 const bcrypt = require("bcryptjs");
 const crypto = require("node:crypto");
 const { render } = require("../utils");
+const escapeHtml = require("escape-html");
 
 async function loginPage(req, res) {
     let form = await fs.readFile(__dirname + "/../template/loginForm.html");
@@ -84,10 +85,10 @@ async function editProfilePage(req, res) {
             <div class="editProfileForm">
                 <form action="/editProfile" method="POST" enctype="multipart/form-data">
                     <label for="username">Username:</label>
-                    <input type="text" id="username" name="username" value="${user.username}" required />
+                    <input type="text" id="username" name="username" value="${escapeHtml(user.username)}" required />
                     
                     <label for="description">Description:</label>
-                    <textarea id="description" name="description" required>${user.description}</textarea>
+                    <textarea id="description" name="description" required>${escapeHtml(user.description)}</textarea>
                     
                     <label for="pfp">Profile Picture:</label>
                     <input type="file" id="pfp" name="pfp" accept="image/*" />
