@@ -119,7 +119,7 @@ async function editProfile(req, res) {
         user.description = req.body.description;
 
         if (req.file) {
-            user.pfp = `/uploads/${req.file.filename}`;
+            user.pfp = `/uploads/${escapeHtml(req.file.filename)}`;
         }
         
         await fs.writeFile("users.json", JSON.stringify(usersData, null, 2));
