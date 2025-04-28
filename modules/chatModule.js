@@ -150,7 +150,12 @@ async function addMessageToChat(req, res) {
     }
 
     const chatId = req.body.chatId;
-    const messageText = req.body.message;
+    const messageText = String(req.body.message);
+
+    const chat = activeChats.find(c => c.id === chatId);
+    if (!chat) {
+        return res.status(404).send("Chat not found");
+    }
 
     let username;
     try {
